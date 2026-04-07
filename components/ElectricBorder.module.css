@@ -1,0 +1,71 @@
+.electricBorder {
+  --electric-border-color: #7df9ff;
+  --electric-border-width: 2px;
+  position: relative;
+  border-radius: inherit;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.canvasContainer {
+  pointer-events: none;
+  position: absolute;
+  inset: -22px;
+  z-index: 1;
+}
+
+.canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.content {
+  position: relative;
+  z-index: 3;
+  border-radius: inherit;
+}
+
+.layers {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.glow1,
+.glow2,
+.backgroundGlow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.glow1 {
+  border: var(--electric-border-width) solid color-mix(in srgb, var(--electric-border-color) 70%, white 10%);
+  opacity: 0.5;
+  filter: blur(0.75px);
+}
+
+.glow2 {
+  border: var(--electric-border-width) solid color-mix(in srgb, var(--electric-border-color) 86%, white 14%);
+  opacity: 0.45;
+  filter: blur(5px);
+}
+
+.backgroundGlow {
+  inset: 8px;
+  opacity: 0;
+  transform: scale(1.02);
+  background:
+    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--electric-border-color) 26%, transparent), transparent 34%),
+    linear-gradient(140deg, color-mix(in srgb, var(--electric-border-color) 18%, transparent), transparent 60%);
+  filter: blur(24px);
+  transition: opacity 220ms ease;
+}
+
+.electricBorder:hover .backgroundGlow {
+  opacity: 0.95;
+}
