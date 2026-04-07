@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import { DeferredBackgroundField } from '@/components/DeferredBackgroundField';
-import { HeroScrollSequence } from '@/components/HeroScrollSequence';
+import { HeroScrollSequence } from '@/components/hero-scroll-sequence';
 import { Navbar } from '@/components/navbar';
 import { StatsSection } from '@/components/stats-section';
 import { OpportunitiesSection } from '@/components/opportunities-section';
