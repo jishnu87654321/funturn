@@ -1,18 +1,23 @@
 {
   "version": 2,
-  "functions": {
-    "api/[...all].js": {
-      "runtime": "@vercel/node@5.3.24"
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/",
-      "destination": "/api/[...all].js"
+      "src": "api/[...all].js",
+      "use": "@vercel/node@5.3.24"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/[...all].js"
     },
     {
-      "source": "/:path*",
-      "destination": "/api/[...all].js"
+      "src": "/",
+      "dest": "api/[...all].js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "api/[...all].js"
     }
   ]
 }
