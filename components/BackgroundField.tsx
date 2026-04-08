@@ -9,6 +9,32 @@ type ParticleCloudProps = {
   count?: number;
 };
 
+function createCircleTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+
+  const context = canvas.getContext('2d');
+
+  if (!context) {
+    return null;
+  }
+
+  context.clearRect(0, 0, 64, 64);
+  const gradient = context.createRadialGradient(32, 32, 4, 32, 32, 28);
+  gradient.addColorStop(0, 'rgba(255,255,255,1)');
+  gradient.addColorStop(0.35, 'rgba(214,190,255,0.95)');
+  gradient.addColorStop(0.7, 'rgba(178,152,220,0.35)');
+  gradient.addColorStop(1, 'rgba(178,152,220,0)');
+
+  context.fillStyle = gradient;
+  context.beginPath();
+  context.arc(32, 32, 28, 0, Math.PI * 2);
+  context.fill();
+
+  return new THREE.CanvasTexture(canvas);
+}
+
 function ParticleCloud({ count = 1200 }: ParticleCloudProps) {
   const groupRef = useRef<THREE.Group | null>(null);
   const pointsRef = useRef<THREE.Points | null>(null);
@@ -17,13 +43,15 @@ function ParticleCloud({ count = 1200 }: ParticleCloudProps) {
   const scrollVelocity = useVelocity(scrollYProgress);
   const pointer = useRef({ x: 0, y: 0 });
   const velocityRef = useRef(0);
+  const texture = useMemo(() => createCircleTexture(), []);
 
   const geometry = useMemo(() => {
     const particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const colorA = new THREE.Color('#B298DC');
-    const colorB = new THREE.Color('#444444');
+    const colorB = new THREE.Color('#6EE7F9');
+    const colorC = new THREE.Color('#F59EFC');
     const mixed = new THREE.Color();
 
     for (let index = 0; index < count; index += 1) {
@@ -32,7 +60,7 @@ function ParticleCloud({ count = 1200 }: ParticleCloudProps) {
       positions[stride + 1] = (Math.random() - 0.5) * 18;
       positions[stride + 2] = (Math.random() - 0.5) * 22;
 
-      mixed.copy(colorA).lerp(colorB, Math.random() * 0.45);
+      mixed.copy(colorA).lerp(Math.random() > 0.45 ? colorB : colorC, Math.random() * 0.55);
       colors[stride] = mixed.r;
       colors[stride + 1] = mixed.g;
       colors[stride + 2] = mixed.b;
@@ -65,9 +93,10 @@ function ParticleCloud({ count = 1200 }: ParticleCloudProps) {
   useEffect(() => {
     return () => {
       geometry.dispose();
+      texture?.dispose();
       materialRef.current?.dispose();
     };
-  }, [geometry]);
+  }, [geometry, texture]);
 
   useFrame((state, delta) => {
     if (!groupRef.current || !pointsRef.current) {
@@ -102,10 +131,12 @@ function ParticleCloud({ count = 1200 }: ParticleCloudProps) {
       <points ref={pointsRef} geometry={geometry}>
         <pointsMaterial
           ref={materialRef}
-          size={0.12}
+          size={0.2}
           sizeAttenuation
+          map={texture ?? undefined}
           transparent
-          opacity={1}
+          opacity={0.9}
+          alphaTest={0.01}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
           vertexColors
@@ -122,6 +153,7 @@ function SceneFallback() {
 export function BackgroundField() {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(178,152,220,0.12),transparent_22%),radial-gradient(circle_at_18%_16%,rgba(110,231,249,0.08),transparent_16%),radial-gradient(circle_at_78%_24%,rgba(245,158,252,0.08),transparent_18%)]" />
       <Canvas
         dpr={[1, 1.25]}
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}

@@ -37,6 +37,16 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api', generalLimiter);
 
 // --- Health Check ---
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Funtern backend is running',
+    data: {
+      docs: '/api/health',
+    },
+  });
+});
+
 app.get('/api/health', (_req, res) => {
   const dbConnected = mongoose.connection.readyState === 1;
 

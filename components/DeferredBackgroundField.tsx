@@ -16,10 +16,10 @@ function shouldUseStaticBackground() {
   const width = window.innerWidth;
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const cores = navigator.hardwareConcurrency;
-  const lowMemoryDevice = typeof memory === 'number' ? memory <= 4 : false;
-  const lowCoreDevice = typeof cores === 'number' ? cores <= 4 : false;
+  const lowMemoryDevice = typeof memory === 'number' ? memory <= 2 : false;
+  const lowCoreDevice = typeof cores === 'number' ? cores <= 2 : false;
 
-  return reduced || width < 768 || lowMemoryDevice || lowCoreDevice;
+  return reduced || width < 640 || lowMemoryDevice || lowCoreDevice;
 }
 
 export function DeferredBackgroundField() {
