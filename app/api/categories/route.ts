@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getBackendApiBaseUrl } from '@/lib/backend-api';
+import { fetchBackendApi } from '@/lib/backend-api';
 import { fallbackCategories } from '@/lib/fallback-categories';
 
 export const revalidate = 300;
@@ -14,7 +14,7 @@ const buildCategoriesResponse = (payload: unknown, status = 200) =>
 
 export async function GET() {
   try {
-    const response = await fetch(`${getBackendApiBaseUrl()}/api/categories`, {
+    const response = await fetchBackendApi('/api/categories', {
       method: 'GET',
       next: { revalidate: 300 },
       headers: {

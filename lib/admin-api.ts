@@ -1,4 +1,4 @@
-import { getBackendApiBaseUrl } from '@/lib/backend-api';
+import { fetchBackendApi } from '@/lib/backend-api';
 
 export async function fetchAdminBackend(
   path: string,
@@ -6,7 +6,7 @@ export async function fetchAdminBackend(
 ) {
   const { token, headers, ...rest } = options;
 
-  return fetch(`${getBackendApiBaseUrl()}${path}`, {
+  return fetchBackendApi(path, {
     ...rest,
     cache: 'no-store',
     headers: {

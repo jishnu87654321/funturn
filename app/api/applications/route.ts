@@ -1,7 +1,49 @@
 import { NextResponse } from 'next/server';
-import { getBackendApiBaseUrl } from '@/lib/backend-api';
+import { fetchBackendApi } from '@/lib/backend-api';
 
 export const dynamic = 'force-dynamic';
+
+const isMongoId = (value: string) => /^[a-f\d]{24}$/i.test(value);
+
+async function resolveCategoryId(selectedCategory: FormDataEntryValue | null) {
+  if (typeof selectedCategory !== 'string' || !selectedCategory.trim()) {
+    return null;
+  }
+
+  const normalizedValue = selectedCategory.trim();
+
+  if (isMongoId(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  const response = await fetchBackendApi('/api/categories', {
+    method: 'GET',
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    return normalizedValue;
+  }
+
+  const payload = (await response.json()) as {
+    data?: {
+      categories?: Array<{ _id?: string; slug?: string; name?: string }>;
+    };
+  };
+
+  const categories = payload.data?.categories || [];
+  const lookup = normalizedValue.toLowerCase();
+  const match = categories.find((category) => {
+    return [category._id, category.slug, category.name]
+      .filter((value): value is string => Boolean(value))
+      .some((value) => value.toLowerCase() === lookup);
+  });
+
+  return match?._id || normalizedValue;
+}
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +54,12 @@ export async function POST(request: Request) {
       outgoing.append(key, value);
     }
 
-    const response = await fetch(`${getBackendApiBaseUrl()}/api/applications`, {
+    const resolvedCategoryId = await resolveCategoryId(incoming.get('selectedCategory'));
+    if (resolvedCategoryId) {
+      outgoing.set('selectedCategory', resolvedCategoryId);
+    }
+
+    const response = await fetchBackendApi('/api/applications', {
       method: 'POST',
       body: outgoing,
       cache: 'no-store',
